@@ -12,6 +12,7 @@ on:
           - both
           - 4b
           - pro4b
+          - jail4b
 
 jobs:
   convert-4b:
@@ -141,5 +142,70 @@ jobs:
         with:
           name: OmniEduPro-4B_w8a8.rkllm
           path: OmniEduPro-4B_w8a8.rkllm
+          retention-days: 7
+          if-no-files-found: error
+
+  convert-jail4b:
+    if: inputs.models == 'both' || inputs.models == 'jail4b'
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL /usr/local/.ghcup /usr/share/swift /opt/hostedtoolcache/go /opt/hostedtoolcache/ruby || true
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Disable HF Xet storage
+        run: echo "HF_HUB_DISABLE_XET=1" >> $GITHUB_ENV
+
+      - name: Add 16GB swap (memory safety for BF16 load)
+        run: |
+          sudo fallocate -l 16G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
+          nproc
+
+      - name: Download toolkit & requirements
+        run: |
+          curl -L -o rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl \
+            "https://raw.githubusercontent.com/airockchip/rknn-llm/release-v1.3.1/rkllm-toolkit/packages/rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl"
+          curl -L -o requirements.txt \
+            "https://raw.githubusercontent.com/airockchip/rknn-llm/release-v1.3.1/rkllm-toolkit/packages/requirements.txt"
+
+      - name: Install deps
+        run: |
+          pip install --no-cache-dir --no-deps ./rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl
+          grep -vi '^auto_gptq' requirements.txt > req2.txt
+          pip install --no-cache-dir -r req2.txt
+
+      - name: Verify toolkit
+        run: python -c "from rkllm.api import RKLLM; print('RKLLM toolkit OK')"
+
+      - name: Download model
+        run: python -c "from huggingface_hub import snapshot_download; snapshot_download('insraq/Qwen3.5-4B-EmperoAI-Qwen3.8-Distill-Heretic-Abliterated', local_dir='EmperoAI-4B')"
+
+      - name: Convert to w8a8
+        run: |
+          export MODEL_DIR=EmperoAI-4B
+          export OUT=Jail-Qwen35-4B_w8a8.rkllm
+          python convert.py 2>&1 | tee convert.log
+          ls -la Jail-Qwen35-4B_w8a8.rkllm
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: Jail-Qwen35-4B_w8a8.rkllm
+          path: Jail-Qwen35-4B_w8a8.rkllm
           retention-days: 7
           if-no-files-found: error
