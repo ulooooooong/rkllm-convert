@@ -18,10 +18,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL /usr/local/.ghcup /usr/share/swift /opt/hostedtoolcache/go /opt/hostedtoolcache/ruby || true
+          sudo docker image prune --all --force || true
+          df -h /
+
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      - name: Disable HF Xet storage
+        run: echo "HF_HUB_DISABLE_XET=1" >> $GITHUB_ENV
 
       - name: Download toolkit & requirements
         run: |
