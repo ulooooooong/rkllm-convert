@@ -10,7 +10,7 @@ ret = rkllm.load_huggingface(model=MODEL_PATH)
 print('load ret:', ret)
 
 ret = rkllm.build(do_quantization=True,
-                  optimizatioin_level=3,
+                  optimization_level=3,
                   quantization_algorithm='w4a16_g128')
 print('build ret:', ret)
 
