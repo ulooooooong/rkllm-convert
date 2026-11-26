@@ -36,6 +36,15 @@ jobs:
       - name: Disable HF Xet storage
         run: echo "HF_HUB_DISABLE_XET=1" >> $GITHUB_ENV
 
+      - name: Add 16GB swap (memory safety for BF16 load)
+        run: |
+          sudo fallocate -l 16G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
+          nproc
+
       - name: Download toolkit & requirements
         run: |
           curl -L -o rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl \
@@ -91,6 +100,15 @@ jobs:
 
       - name: Disable HF Xet storage
         run: echo "HF_HUB_DISABLE_XET=1" >> $GITHUB_ENV
+
+      - name: Add 16GB swap (memory safety for BF16 load)
+        run: |
+          sudo fallocate -l 16G /mnt/swapfile
+          sudo chmod 600 /mnt/swapfile
+          sudo mkswap /mnt/swapfile
+          sudo swapon /mnt/swapfile
+          free -h
+          nproc
 
       - name: Download toolkit & requirements
         run: |
