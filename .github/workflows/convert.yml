@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android /opt/hostedtoolcache/CodeQL /usr/local/.ghcup /usr/share/swift /opt/hostedtoolcache/go /opt/hostedtoolcache/ruby || true
@@ -49,9 +52,7 @@ jobs:
         run: python -c "from rkllm.api import RKLLM; print('RKLLM toolkit OK')"
 
       - name: Download model
-        run: |
-          pip install -U huggingface_hub
-          python -c "from huggingface_hub import snapshot_download; snapshot_download('${{ matrix.model_id }}', local_dir='${{ matrix.model_dir }}')"
+        run: python -c "from huggingface_hub import snapshot_download; snapshot_download('${{ matrix.model_id }}', local_dir='${{ matrix.model_dir }}')"
 
       - name: Convert to w4a16
         run: |
