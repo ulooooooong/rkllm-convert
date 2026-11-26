@@ -11,7 +11,7 @@ print('load ret:', ret)
 
 ret = rkllm.build(do_quantization=True,
                   optimization_level=3,
-                  quantized_dtype='w4a16_g128',
+                  quantized_dtype='w8a8',
                   quantized_algorithm='normal',
                   target_platform='rk3588',
                   num_npu_core=3)
