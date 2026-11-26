@@ -30,9 +30,8 @@ jobs:
           curl -L -o requirements.txt \
             "https://raw.githubusercontent.com/airockchip/rknn-llm/release-v1.3.1/rkllm-toolkit/packages/requirements.txt"
 
-      - name: Install CPU torch then deps
+      - name: Install deps
         run: |
-          pip install --no-cache-dir torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
           pip install --no-cache-dir --no-deps ./rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl
           grep -vi '^auto_gptq' requirements.txt > req2.txt
           pip install --no-cache-dir -r req2.txt
