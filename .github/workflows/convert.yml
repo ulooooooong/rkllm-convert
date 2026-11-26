@@ -33,8 +33,8 @@ jobs:
       - name: Install CPU torch then deps
         run: |
           pip install --no-cache-dir torch==2.6.0 --index-url https://download.pytorch.org/whl/cpu
-          pip install --no-cache-dir ./rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl
-          grep -v '^auto_gptq' requirements.txt > req2.txt
+          pip install --no-cache-dir --no-deps ./rkllm_toolkit-1.3.1-cp312-cp312-linux_x86_64.whl
+          grep -vi '^auto_gptq' requirements.txt > req2.txt
           pip install --no-cache-dir -r req2.txt
 
       - name: Verify toolkit
