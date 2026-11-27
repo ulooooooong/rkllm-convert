@@ -199,6 +199,7 @@ jobs:
         run: |
           export MODEL_DIR=EmperoAI-4B
           export OUT=Jail-Qwen35-4B_w8a8.rkllm
+          export MAX_CTX=8192
           python convert.py 2>&1 | tee convert.log
           ls -la Jail-Qwen35-4B_w8a8.rkllm
 
